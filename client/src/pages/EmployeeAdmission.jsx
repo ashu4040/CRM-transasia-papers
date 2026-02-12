@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import ExperienceLetterModal from "../components/ExperienceLetterModal";
 import { jsPDF } from "jspdf";
+import RemoveEmployeeModal from "../components/RemoveEmployeeModal";
 
 const EmployeeAdmission = () => {
   const [countries, setCountries] = useState([]);
@@ -10,6 +11,7 @@ const EmployeeAdmission = () => {
   const [currentStates, setCurrentStates] = useState([]);
   const [currentCities, setCurrentCities] = useState([]);
   const [showExperience, setShowExperience] = useState(false);
+  const [showRemove, setShowRemove] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -378,6 +380,17 @@ const EmployeeAdmission = () => {
 
       {showExperience && (
         <ExperienceLetterModal onClose={() => setShowExperience(false)} />
+      )}
+
+      <button
+        type="button"
+        onClick={() => setShowRemove(true)}
+        className="w-full bg-red-700 text-white py-3 rounded-lg hover:bg-red-800 mt-4"
+      >
+        Remove Employee
+      </button>
+      {showRemove && (
+        <RemoveEmployeeModal onClose={() => setShowRemove(false)} />
       )}
     </div>
   );
