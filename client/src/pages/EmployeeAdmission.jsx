@@ -1,25 +1,26 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import ExperienceLetterModal from "../components/ExperienceLetterModal";
 import { jsPDF } from "jspdf";
+import ExperienceLetterModal from "../components/ExperienceLetterModal";
 import RemoveEmployeeModal from "../components/RemoveEmployeeModal";
 
 const EmployeeAdmission = () => {
+  const API = import.meta.env.VITE_API_BASE_URL;
+
   const [countries, setCountries] = useState([]);
-  const [permanentStates, setPermanentStates] = useState([]);
-  const [permanentCities, setPermanentCities] = useState([]);
-  const [currentStates, setCurrentStates] = useState([]);
-  const [currentCities, setCurrentCities] = useState([]);
+  const [states, setStates] = useState([]);
+  const [cities, setCities] = useState([]);
+
   const [showExperience, setShowExperience] = useState(false);
   const [showRemove, setShowRemove] = useState(false);
 
   const [formData, setFormData] = useState({
-    name: "",
+    firstName: "",
+    lastName: "",
     email: "",
-    mobile: "",
+    personalMobile: "",
     coco: "",
     doj: "",
-    doe: "",
 
     permanentAddress: {
       country: "",
@@ -57,62 +58,59 @@ const EmployeeAdmission = () => {
   // ================= FETCH COUNTRIES =================
   useEffect(() => {
     const fetchCountries = async () => {
-      const res = await axios.get(
-        "https://countriesnow.space/api/v0.1/countries/positions",
-      );
-      setCountries(res.data.data.map((c) => c.name.toUpperCase()));
+      try {
+        const res = await axios.get(
+          "https://countriesnow.space/api/v0.1/countries/positions",
+        );
+        setCountries(res.data.data.map((c) => c.name));
+      } catch (err) {
+        console.error(err);
+      }
     };
     fetchCountries();
   }, []);
 
-  // joining letter
-  const generateJoiningLetter = (employee) => {
-    const doc = new jsPDF();
+  // ================= FETCH STATES =================
+  const fetchStates = async (country) => {
+    try {
+      const res = await axios.post(
+        "https://countriesnow.space/api/v0.1/countries/states",
+        { country },
+      );
 
-    doc.setFontSize(18);
-    doc.text("JOINING LETTER", 70, 20);
+      setStates(res.data.data.states.map((s) => s.name));
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
-    doc.setFontSize(12);
-    doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 40);
+  // fetch city
+  const fetchCities = async (country, state) => {
+    try {
+      const res = await axios.post(
+        "https://countriesnow.space/api/v0.1/countries/state/cities",
+        { country, state },
+      );
 
-    doc.text(`To,`, 20, 60);
-    doc.text(employee.name, 20, 70);
-
-    doc.text(
-      `We are pleased to appoint you in the ${employee.department} department at Transia CRM.`,
-      20,
-      90,
-      { maxWidth: 170 },
-    );
-
-    doc.text(
-      `Your date of joining will be ${new Date(employee.doj).toLocaleDateString()}.`,
-      20,
-      110,
-    );
-
-    doc.text(`Salary: ₹${employee.salary} per month`, 20, 125);
-
-    doc.text("Bank Details:", 20, 145);
-    doc.text(`Bank: ${employee.bankDetails.bankName}`, 20, 155);
-    doc.text(`Account: ${employee.bankDetails.accountNumber}`, 20, 165);
-    doc.text(`IFSC: ${employee.bankDetails.ifsc}`, 20, 175);
-
-    doc.text("We look forward to your contribution.", 20, 195);
-
-    doc.text("HR Department", 20, 220);
-    doc.text("Transia CRM", 20, 230);
-
-    doc.save(`${employee.name}_Joining_Letter.pdf`);
+      setCities(res.data.data);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   // ================= HANDLE CHANGE =================
   const handleChange = (e, section = null) => {
     let { name, value } = e.target;
 
-    // Force uppercase everywhere except dates & salary
-    if (name !== "salary" && name !== "doj" && name !== "doe")
+    if (
+      name !== "salary" &&
+      name !== "doj" &&
+      name !== "country" &&
+      name !== "state" &&
+      name !== "city"
+    ) {
       value = value.toUpperCase();
+    }
 
     if (section === "permanent") {
       setFormData((prev) => ({
@@ -150,33 +148,28 @@ const EmployeeAdmission = () => {
   const handleSameAddress = (e) => {
     const checked = e.target.checked;
 
-    if (checked) {
-      setFormData((prev) => ({
-        ...prev,
-        sameAddress: true,
-        currentAddress: { ...prev.permanentAddress },
-      }));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        sameAddress: false,
-        currentAddress: {
-          country: "",
-          state: "",
-          city: "",
-          zipCode: "",
-          line1: "",
-          line2: "",
-        },
-      }));
-    }
+    setFormData((prev) => ({
+      ...prev,
+      sameAddress: checked,
+      currentAddress: checked
+        ? { ...prev.permanentAddress }
+        : {
+            country: "",
+            state: "",
+            city: "",
+            zipCode: "",
+            line1: "",
+            line2: "",
+          },
+    }));
   };
 
   // ================= VALIDATION =================
   const validate = () => {
-    if (!formData.name) return false;
+    if (!formData.firstName) return false;
+    if (!formData.lastName) return false;
     if (!formData.email) return false;
-    if (!formData.mobile) return false;
+    if (!formData.personalMobile) return false;
     if (!formData.doj) return false;
 
     const p = formData.permanentAddress;
@@ -185,15 +178,58 @@ const EmployeeAdmission = () => {
 
     if (!p.country || !p.state || !p.city || !p.zipCode || !p.line1 || !p.line2)
       return false;
+
     if (!c.country || !c.state || !c.city || !c.zipCode || !c.line1 || !c.line2)
       return false;
 
     if (!formData.department) return false;
     if (!b.bankName || !b.accountNumber || b.ifsc.length !== 11) return false;
+
     if (!formData.salary) return false;
     if (!formData.panCard) return false;
 
     return true;
+  };
+
+  // ================= GENERATE JOINING LETTER =================
+  const generateJoiningLetter = (employee, isDuplicate = false) => {
+    const doc = new jsPDF();
+
+    doc.setFontSize(18);
+    doc.text("JOINING LETTER", 70, 20);
+
+    if (isDuplicate) {
+      doc.setFontSize(30);
+      doc.setTextColor(200, 200, 200);
+      doc.text("DUPLICATE COPY", 35, 150, { angle: 45 });
+      doc.setTextColor(0, 0, 0);
+    }
+
+    doc.setFontSize(12);
+    doc.text(`Print Date: ${new Date().toLocaleDateString()}`, 20, 40);
+
+    doc.text(`To,`, 20, 60);
+    doc.text(`${employee.firstName} ${employee.lastName}`, 20, 70);
+
+    doc.text(
+      `We are pleased to appoint you in the ${employee.department} department at Transia CRM.`,
+      20,
+      90,
+      { maxWidth: 170 },
+    );
+
+    doc.text(
+      `Your date of joining is ${new Date(employee.doj).toLocaleDateString()}.`,
+      20,
+      110,
+    );
+
+    doc.text(`Salary: ₹${employee.salary} per month`, 20, 125);
+
+    doc.text("HR Department", 20, 160);
+    doc.text("Transia CRM", 20, 170);
+
+    doc.save(`${employee.firstName}_${employee.lastName}_Joining_Letter.pdf`);
   };
 
   // ================= SUBMIT =================
@@ -216,31 +252,40 @@ const EmployeeAdmission = () => {
     };
 
     try {
-      const res = await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}/employees`,
-        payload,
+      const res = await axios.post(`${API}/employees`, payload);
+
+      const confirmDraft = window.confirm(
+        "Do you want to generate Joining Letter Draft?",
       );
 
-      generateJoiningLetter(res.data); // 🔥 generate PDF
+      if (confirmDraft) {
+        generateJoiningLetter(res.data, false);
+      }
 
-      alert("Employee Saved & Joining Letter Generated");
+      alert("Employee Saved Successfully");
     } catch (err) {
       console.error(err);
       alert("Error saving employee");
     }
   };
 
-  // ================= UI =================
   return (
     <div className="bg-white p-8 rounded-2xl shadow max-w-6xl">
-      <h2 className="text-2xl font-bold mb-6">Employee Admission</h2>
+      <h2 className="text-2xl font-bold mb-6">Employee Joining</h2>
 
       <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-6">
         <Input
-          label="Name"
-          name="name"
+          label="First Name"
+          name="firstName"
           required
-          value={formData.name}
+          value={formData.firstName}
+          onChange={handleChange}
+        />
+        <Input
+          label="Last Name"
+          name="lastName"
+          required
+          value={formData.lastName}
           onChange={handleChange}
         />
         <Input
@@ -251,20 +296,18 @@ const EmployeeAdmission = () => {
           onChange={handleChange}
         />
         <Input
-          label="Mobile"
-          name="mobile"
+          label="Personal Mobile"
+          name="personalMobile"
           required
-          value={formData.mobile}
+          value={formData.personalMobile}
           onChange={handleChange}
         />
-
         <Input
           label="COCO (Company Mobile)"
           name="coco"
           value={formData.coco}
           onChange={handleChange}
         />
-
         <Input
           label="Date of Joining"
           name="doj"
@@ -280,6 +323,11 @@ const EmployeeAdmission = () => {
           address={formData.permanentAddress}
           section="permanent"
           handleChange={handleChange}
+          countries={countries}
+          states={states}
+          cities={cities}
+          fetchStates={fetchStates}
+          fetchCities={fetchCities}
         />
 
         <div className="col-span-2">
@@ -299,6 +347,11 @@ const EmployeeAdmission = () => {
           address={formData.currentAddress}
           section="current"
           handleChange={handleChange}
+          countries={countries}
+          states={states}
+          cities={cities}
+          fetchStates={fetchStates}
+          fetchCities={fetchCities}
         />
 
         <SectionTitle title="Employment Details" />
@@ -349,7 +402,6 @@ const EmployeeAdmission = () => {
           value={formData.bankDetails.ifsc}
           onChange={(e) => handleChange(e, "bank")}
         />
-
         <Input
           label="Salary"
           name="salary"
@@ -370,10 +422,11 @@ const EmployeeAdmission = () => {
           Submit
         </button>
       </form>
+
       <button
         type="button"
         onClick={() => setShowExperience(true)}
-        className="w-full bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 mt-4"
+        className="w-full bg-red-600 text-white py-3 rounded-lg mt-4"
       >
         Make Experience Letter
       </button>
@@ -385,10 +438,11 @@ const EmployeeAdmission = () => {
       <button
         type="button"
         onClick={() => setShowRemove(true)}
-        className="w-full bg-red-700 text-white py-3 rounded-lg hover:bg-red-800 mt-4"
+        className="w-full bg-red-700 text-white py-3 rounded-lg mt-4"
       >
         Remove Employee
       </button>
+
       {showRemove && (
         <RemoveEmployeeModal onClose={() => setShowRemove(false)} />
       )}
@@ -407,29 +461,81 @@ const Input = ({ label, required, ...props }) => (
   </div>
 );
 
-const AddressSection = ({ address, section, handleChange }) => (
+const SectionTitle = ({ title }) => (
+  <div className="col-span-2 font-semibold text-lg mt-6">{title}</div>
+);
+
+const AddressSection = ({
+  address,
+  section,
+  handleChange,
+  countries,
+  states,
+  cities,
+  fetchStates,
+  fetchCities,
+}) => (
   <>
-    <Input
-      label="Country"
-      required
-      name="country"
-      value={address.country}
-      onChange={(e) => handleChange(e, section)}
-    />
-    <Input
-      label="State"
-      required
-      name="state"
-      value={address.state}
-      onChange={(e) => handleChange(e, section)}
-    />
-    <Input
-      label="City"
-      required
-      name="city"
-      value={address.city}
-      onChange={(e) => handleChange(e, section)}
-    />
+    {/* COUNTRY */}
+    <div>
+      <label className="block mb-1">Country *</label>
+      <select
+        name="country"
+        value={address.country}
+        onChange={(e) => {
+          handleChange(e, section);
+          fetchStates(e.target.value);
+        }}
+        className="p-3 border rounded-lg w-full"
+      >
+        <option value="">Select Country</option>
+        {countries.map((c) => (
+          <option key={c} value={c}>
+            {c}
+          </option>
+        ))}
+      </select>
+    </div>
+
+    {/* STATE */}
+    <div>
+      <label className="block mb-1">State *</label>
+      <select
+        name="state"
+        value={address.state}
+        onChange={(e) => {
+          handleChange(e, section);
+          fetchCities(address.country, e.target.value);
+        }}
+        className="p-3 border rounded-lg w-full"
+      >
+        <option value="">Select State</option>
+        {states.map((s) => (
+          <option key={s} value={s}>
+            {s}
+          </option>
+        ))}
+      </select>
+    </div>
+
+    {/* CITY */}
+    <div>
+      <label className="block mb-1">City *</label>
+      <select
+        name="city"
+        value={address.city}
+        onChange={(e) => handleChange(e, section)}
+        className="p-3 border rounded-lg w-full"
+      >
+        <option value="">Select City</option>
+        {cities.map((city) => (
+          <option key={city} value={city}>
+            {city}
+          </option>
+        ))}
+      </select>
+    </div>
+
     <Input
       label="ZIP Code"
       required
@@ -437,6 +543,7 @@ const AddressSection = ({ address, section, handleChange }) => (
       value={address.zipCode}
       onChange={(e) => handleChange(e, section)}
     />
+
     <Input
       label="Address Line 1"
       required
@@ -444,6 +551,7 @@ const AddressSection = ({ address, section, handleChange }) => (
       value={address.line1}
       onChange={(e) => handleChange(e, section)}
     />
+
     <Input
       label="Address Line 2"
       required
@@ -452,8 +560,4 @@ const AddressSection = ({ address, section, handleChange }) => (
       onChange={(e) => handleChange(e, section)}
     />
   </>
-);
-
-const SectionTitle = ({ title }) => (
-  <div className="col-span-2 font-semibold text-lg mt-6">{title}</div>
 );
