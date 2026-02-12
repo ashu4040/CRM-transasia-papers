@@ -15,7 +15,9 @@ const ExperienceLetterModal = ({ onClose }) => {
   // Fetch all employees
   useEffect(() => {
     const fetchEmployees = async () => {
-      const res = await axios.get("http://localhost:5000/api/employees");
+      const res = await axios.get(
+        `${import.meta.env.VITE_API_BASE_URL}/employees`,
+      );
       setEmployees(res.data);
 
       // extract unique departments
@@ -63,7 +65,7 @@ const ExperienceLetterModal = ({ onClose }) => {
     try {
       // 🔥 UPDATE ONLY DOE IN DATABASE
       await axios.put(
-        `http://localhost:5000/api/employees/${selectedEmployee}`,
+        `${import.meta.env.VITE_API_BASE_URL}/employees/${selectedEmployee}`,
         { doe: exitDate },
       );
 

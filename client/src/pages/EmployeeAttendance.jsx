@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
+const API = import.meta.env.VITE_API_BASE_URL;
+
 const EmployeeAttendance = () => {
   const [employees, setEmployees] = useState([]);
   const [attendance, setAttendance] = useState([]);
@@ -15,19 +17,23 @@ const EmployeeAttendance = () => {
   // Fetch employees
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/employees")
+      .get(`${API}/employees`)
       .then((res) => setEmployees(res.data))
       .catch((err) => console.error(err));
   }, []);
 
-  // Fetch attendance records
+  // Fetch attendance
   useEffect(() => {
     fetchAttendance();
   }, []);
 
   const fetchAttendance = async () => {
-    const res = await axios.get("http://localhost:5000/api/attendance");
-    setAttendance(res.data);
+    try {
+      const res = await axios.get(`${API}/attendance`);
+      setAttendance(res.data);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleChange = (e) => {
@@ -41,10 +47,7 @@ const EmployeeAttendance = () => {
     e.preventDefault();
 
     try {
-      const res = await axios.post(
-        "http://localhost:5000/api/attendance",
-        formData,
-      );
+      await axios.post(`${API}/attendance`, formData);
 
       fetchAttendance();
 
@@ -59,13 +62,12 @@ const EmployeeAttendance = () => {
     }
   };
 
-  // ✅ FRONTEND-ONLY DELETE
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure?")) return;
 
     try {
-      await axios.delete(`http://localhost:5000/api/attendance/${id}`);
-      fetchAttendance(); // always reload from DB
+      await axios.delete(`${API}/attendance/${id}`);
+      fetchAttendance();
     } catch (err) {
       console.error(err);
     }
@@ -124,8 +126,6 @@ const EmployeeAttendance = () => {
           Save Attendance
         </button>
       </form>
-
-      {/* Attendance Table */}
 
       <table className="w-full border">
         <thead>

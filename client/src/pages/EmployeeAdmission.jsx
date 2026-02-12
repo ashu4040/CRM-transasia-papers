@@ -215,7 +215,7 @@ const EmployeeAdmission = () => {
 
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/employees",
+        `${import.meta.env.VITE_API_BASE_URL}/employees`,
         payload,
       );
 
