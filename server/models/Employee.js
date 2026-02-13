@@ -4,9 +4,11 @@ const employeeSchema = new mongoose.Schema(
   {
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
-
+    personalMobile: {
+      type: String,
+      required: true,
+    },
     email: { type: String, required: true },
-    mobile: { type: String, required: true },
 
     coco: { type: String }, // Company mobile (optional)
 
@@ -39,7 +41,7 @@ const employeeSchema = new mongoose.Schema(
       ifsc: { type: String, required: true },
     },
 
-    salary: { type: Number, required: true },
+    salary: { type: String, required: true },
     panCard: { type: String, required: true },
   },
   { timestamps: true },

@@ -5,6 +5,7 @@ exports.createEmployee = async (req, res) => {
     const employee = await Employee.create(req.body);
     res.status(201).json(employee);
   } catch (err) {
+    console.error("CREATE ERROR:", err);
     res.status(500).json({ error: err.message });
   }
 };
