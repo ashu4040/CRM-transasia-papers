@@ -3,6 +3,7 @@ import Navbar from "./layouts/Navbar";
 import Sidebar from "./layouts/SideBar";
 import EmployeeAdmission from "./pages/EmployeeAdmission";
 import EmployeeAttendance from "./pages/EmployeeAttendance";
+import PreviousEmployeesPage from "./pages/PreviousEmployeesPage";
 
 function App() {
   return (
@@ -17,6 +18,10 @@ function App() {
             <Routes>
               <Route path="/admission" element={<EmployeeAdmission />} />
               <Route path="/attendance" element={<EmployeeAttendance />} />
+              <Route
+                path="/previous-employees"
+                element={<PreviousEmployeesPage />}
+              />
             </Routes>
           </div>
         </div>

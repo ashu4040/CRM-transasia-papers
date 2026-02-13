@@ -1,5 +1,5 @@
-const Employee = require("../models/Employee");
-const PreviousEmployee = require("../models/PreviousEmployee");
+const Employee = require("../server/models/Employee");
+const PreviousEmployee = require("../server/models/PreviousEmployee");
 
 exports.moveEmployeeToPrevious = async (req, res) => {
   try {

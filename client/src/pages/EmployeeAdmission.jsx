@@ -3,7 +3,7 @@ import axios from "axios";
 import { jsPDF } from "jspdf";
 import ExperienceLetterModal from "../components/ExperienceLetterModal";
 import RemoveEmployeeModal from "../components/RemoveEmployeeModal";
-import PreviousEmployeesModal from "../components/PreviousEmployeesModal";
+import { useNavigate } from "react-router-dom";
 
 const EmployeeAdmission = () => {
   const API = import.meta.env.VITE_API_BASE_URL;
@@ -14,7 +14,7 @@ const EmployeeAdmission = () => {
 
   const [showExperience, setShowExperience] = useState(false);
   const [showRemove, setShowRemove] = useState(false);
-  const [showPrevious, setShowPrevious] = useState(false);
+  // const [showPrevious, setShowPrevious] = useState(false);
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -271,6 +271,8 @@ const EmployeeAdmission = () => {
     }
   };
 
+  const navigate = useNavigate();
+
   return (
     <div className="bg-white p-8 rounded-2xl shadow max-w-6xl">
       <h2 className="text-2xl font-bold mb-6">Employee Joining</h2>
@@ -451,14 +453,11 @@ const EmployeeAdmission = () => {
 
       <button
         type="button"
-        onClick={() => setShowPrevious(true)}
+        onClick={() => navigate("/previous-employees")}
         className="w-full bg-gray-800 text-white py-3 rounded-lg mt-4"
       >
-        Previous Employees
+        Inactive Employees
       </button>
-      {showPrevious && (
-        <PreviousEmployeesModal onClose={() => setShowPrevious(false)} />
-      )}
     </div>
   );
 };

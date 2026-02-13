@@ -180,7 +180,7 @@ const ExperienceLetterModal = ({ onClose }) => {
           <option value="">Select Employee</option>
           {filteredEmployees.map((emp) => (
             <option key={emp._id} value={emp._id}>
-              {emp.name}
+              {emp.firstName} {emp.lastName}
             </option>
           ))}
         </select>
