@@ -5,6 +5,7 @@ require("dotenv").config();
 
 const employeeRoutes = require("./routes/employeeRoutes");
 const attendanceRoutes = require("./routes/attendanceRoutes");
+const previousEmployeeRoutes = require("./routes/previousEmployeeRoutes");
 
 const app = express();
 
@@ -15,6 +16,8 @@ mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB Atlas Connected"))
   .catch((err) => console.log(err));
+
+app.use("/api/previous-employees", previousEmployeeRoutes);
 
 app.use("/api/employees", employeeRoutes);
 app.use("/api/attendance", attendanceRoutes);

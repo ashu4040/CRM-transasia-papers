@@ -3,6 +3,7 @@ import axios from "axios";
 import { jsPDF } from "jspdf";
 import ExperienceLetterModal from "../components/ExperienceLetterModal";
 import RemoveEmployeeModal from "../components/RemoveEmployeeModal";
+import PreviousEmployeesModal from "../components/PreviousEmployeesModal";
 
 const EmployeeAdmission = () => {
   const API = import.meta.env.VITE_API_BASE_URL;
@@ -13,6 +14,7 @@ const EmployeeAdmission = () => {
 
   const [showExperience, setShowExperience] = useState(false);
   const [showRemove, setShowRemove] = useState(false);
+  const [showPrevious, setShowPrevious] = useState(false);
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -445,6 +447,17 @@ const EmployeeAdmission = () => {
 
       {showRemove && (
         <RemoveEmployeeModal onClose={() => setShowRemove(false)} />
+      )}
+
+      <button
+        type="button"
+        onClick={() => setShowPrevious(true)}
+        className="w-full bg-gray-800 text-white py-3 rounded-lg mt-4"
+      >
+        Previous Employees
+      </button>
+      {showPrevious && (
+        <PreviousEmployeesModal onClose={() => setShowPrevious(false)} />
       )}
     </div>
   );
