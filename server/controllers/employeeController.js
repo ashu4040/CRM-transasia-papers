@@ -1,4 +1,28 @@
 const Employee = require("../models/Employee");
+const PreviousEmployee = require("../models/PreviousEmployee");
+
+exports.moveEmployeeToPrevious = async (req, res) => {
+  try {
+    const employee = await Employee.findById(req.params.id);
+
+    if (!employee) {
+      return res.status(404).json({ error: "Employee not found" });
+    }
+
+    const previousEmployee = new PreviousEmployee({
+      ...employee._doc,
+      doe: new Date(), // date of exit
+    });
+
+    await previousEmployee.save();
+
+    await Employee.findByIdAndDelete(req.params.id);
+
+    res.json({ message: "Employee moved to Previous Employees" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
 exports.createEmployee = async (req, res) => {
   try {

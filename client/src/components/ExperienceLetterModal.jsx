@@ -62,56 +62,77 @@ const ExperienceLetterModal = ({ onClose }) => {
       return;
     }
 
-    try {
-      // 🔥 UPDATE ONLY DOE IN DATABASE
-      await axios.put(
-        `${import.meta.env.VITE_API_BASE_URL}/employees/${selectedEmployee}`,
-        { doe: exitDate },
-      );
+    const confirmRemove = window.confirm(
+      "Do you want to remove this employee from Active Employees?",
+    );
 
-      // 🔥 THEN GENERATE PDF
+    try {
+      // If YES → move employee to PreviousEmployee collection
+      if (confirmRemove) {
+        await axios.post(
+          `${import.meta.env.VITE_API_BASE_URL}/employees/move/${selectedEmployee}`,
+          { doe: exitDate },
+        );
+      } else {
+        // If NO → just update DOE in active employee
+        await axios.put(
+          `${import.meta.env.VITE_API_BASE_URL}/employees/${selectedEmployee}`,
+          { doe: exitDate },
+        );
+      }
+
+      // 🔥 Generate PDF
       const doc = new jsPDF();
 
       doc.setFontSize(18);
-      doc.text("EXPERIENCE LETTER", 65, 20);
+      doc.text("EXPERIENCE LETTER", 60, 20);
 
       doc.setFontSize(12);
       doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 40);
 
       doc.text(
-        `This is to certify that ${employee.name} worked with Transia CRM`,
+        `This is to certify that ${employee.firstName} ${employee.lastName}`,
         20,
         60,
       );
 
       doc.text(
-        `in the ${employee.department} department from ${new Date(
-          employee.doj,
-        ).toLocaleDateString()} to ${new Date(exitDate).toLocaleDateString()}.`,
+        `worked with Transia CRM in the ${employee.department} department`,
         20,
         75,
         { maxWidth: 170 },
       );
 
       doc.text(
-        `During this period, their performance was found satisfactory.`,
+        `from ${new Date(employee.doj).toLocaleDateString()} to ${new Date(
+          exitDate,
+        ).toLocaleDateString()}.`,
         20,
-        95,
+        90,
+        { maxWidth: 170 },
       );
 
-      doc.text("We wish them success in future endeavors.", 20, 115);
+      doc.text(
+        `During this period, their performance was found satisfactory.`,
+        20,
+        110,
+      );
 
-      doc.text("HR Department", 20, 150);
-      doc.text("Transia CRM", 20, 160);
+      doc.text("We wish them success in future endeavors.", 20, 130);
 
-      doc.save(`${employee.name}_Experience_Letter.pdf`);
+      doc.text("HR Department", 20, 160);
+      doc.text("Transia CRM", 20, 170);
 
-      alert("DOE Updated & Experience Letter Generated");
+      doc.save(
+        `${employee.firstName}_${employee.lastName}_Experience_Letter.pdf`,
+      );
+
+      alert("Experience Letter Generated Successfully");
 
       onClose();
     } catch (err) {
       console.error(err);
-      alert("Error updating employee");
+      alert("Operation failed");
     }
   };
 

@@ -4,9 +4,12 @@ const {
   createEmployee,
   getEmployees,
   updateEmployee,
+  moveEmployeeToPrevious,
 } = require("../controllers/employeeController");
 const Employee = require("../models/Employee");
+// const { moveToPrevious } = require("../controllers/employeeController");
 
+router.post("/move/:id", moveEmployeeToPrevious);
 router.post("/", createEmployee);
 router.get("/", getEmployees);
 router.put("/:id", updateEmployee);
