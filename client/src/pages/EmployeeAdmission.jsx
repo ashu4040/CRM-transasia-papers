@@ -17,6 +17,7 @@ const EmployeeAdmission = () => {
   // const [showPrevious, setShowPrevious] = useState(false);
 
   const [formData, setFormData] = useState({
+    center: "",
     firstName: "",
     lastName: "",
     email: "",
@@ -173,6 +174,7 @@ const EmployeeAdmission = () => {
     if (!formData.email) return false;
     if (!formData.personalMobile) return false;
     if (!formData.doj) return false;
+    if (!formData.center) return false;
 
     const p = formData.permanentAddress;
     const c = formData.currentAddress;
@@ -278,6 +280,26 @@ const EmployeeAdmission = () => {
       <h2 className="text-2xl font-bold mb-6">Employee Joining</h2>
 
       <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-6">
+        <div>
+          <label className="block mb-1">
+            Select Company Center <span className="text-red-500">*</span>
+          </label>
+
+          <select
+            name="center"
+            value={formData.center}
+            onChange={handleChange}
+            className="p-3 border rounded-lg w-full"
+            required
+          >
+            <option value="">Select Center</option>
+            <option value="DELHI">DELHI</option>
+            <option value="MUMBAI">MUMBAI</option>
+            <option value="KOLKATA">KOLKATA</option>
+            <option value="BANGALORE">BANGALORE</option>
+          </select>
+        </div>
+
         <Input
           label="First Name"
           name="firstName"

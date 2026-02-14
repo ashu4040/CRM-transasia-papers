@@ -2,6 +2,12 @@ const mongoose = require("mongoose");
 
 const employeeSchema = new mongoose.Schema(
   {
+    center: {
+      type: String,
+      required: true,
+      enum: ["DELHI", "MUMBAI", "KOLKATA", "BANGALORE"],
+    },
+
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
     personalMobile: {
