@@ -2,15 +2,44 @@ const mongoose = require("mongoose");
 
 const previousEmployeeSchema = new mongoose.Schema(
   {
-    center: String,
+    // ✅ CENTER (same as Employee schema)
+    center: {
+      type: String,
+      required: true,
+      enum: ["DELHI", "MUMBAI", "KOLKATA", "BANGALORE"],
+    },
 
-    firstName: String,
-    lastName: String,
-    personalMobile: String,
-    email: String,
+    firstName: {
+      type: String,
+      required: true,
+    },
+
+    lastName: {
+      type: String,
+      required: true,
+    },
+
+    personalMobile: {
+      type: String,
+      required: true,
+    },
+
+    email: {
+      type: String,
+      required: true,
+    },
+
     coco: String,
-    doj: Date,
-    doe: Date,
+
+    doj: {
+      type: Date,
+      required: true,
+    },
+
+    doe: {
+      type: Date,
+      required: true, // leaving employee must have exit date
+    },
 
     permanentAddress: {
       country: String,
@@ -30,7 +59,10 @@ const previousEmployeeSchema = new mongoose.Schema(
       line2: String,
     },
 
-    department: String,
+    department: {
+      type: String,
+      required: true,
+    },
 
     bankDetails: {
       bankName: String,
@@ -38,8 +70,22 @@ const previousEmployeeSchema = new mongoose.Schema(
       ifsc: String,
     },
 
-    salary: Number,
-    panCard: String,
+    // ✅ keep same datatype as Employee schema
+    salary: {
+      type: Number,
+      required: true,
+    },
+
+    panCard: {
+      type: String,
+      required: true,
+    },
+
+    // ✅ optional audit field (VERY useful later)
+    movedAt: {
+      type: Date,
+      default: Date.now,
+    },
   },
   { timestamps: true },
 );
