@@ -458,6 +458,15 @@ const EmployeeAdmission = () => {
       >
         Inactive Employees
       </button>
+
+      {/* Active Employees Button */}
+      <button
+        type="button"
+        onClick={() => navigate("/active-employees")}
+        className="w-full bg-green-600 text-white py-3 rounded-lg mt-4"
+      >
+        Active Employees
+      </button>
     </div>
   );
 };

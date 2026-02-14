@@ -4,6 +4,7 @@ import Sidebar from "./layouts/SideBar";
 import EmployeeAdmission from "./pages/EmployeeAdmission";
 import EmployeeAttendance from "./pages/EmployeeAttendance";
 import PreviousEmployeesPage from "./pages/PreviousEmployeesPage";
+import ActiveEmployeesPage from "./pages/ActiveEmployeesPage";
 
 function App() {
   return (
@@ -21,6 +22,10 @@ function App() {
               <Route
                 path="/previous-employees"
                 element={<PreviousEmployeesPage />}
+              />
+              <Route
+                path="/active-employees"
+                element={<ActiveEmployeesPage />}
               />
             </Routes>
           </div>
