@@ -6,6 +6,8 @@ const employeeSchema = new mongoose.Schema(
       type: String,
       required: true,
       enum: ["DELHI", "MUMBAI", "KOLKATA", "BANGALORE"],
+      uppercase: true,
+      trim: true,
     },
 
     firstName: { type: String, required: true },
@@ -47,7 +49,7 @@ const employeeSchema = new mongoose.Schema(
       ifsc: { type: String, required: true },
     },
 
-    salary: { type: String, required: true },
+    salary: { type: Number, required: true },
     panCard: { type: String, required: true },
   },
   { timestamps: true },

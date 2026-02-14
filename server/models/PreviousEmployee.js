@@ -2,6 +2,8 @@ const mongoose = require("mongoose");
 
 const previousEmployeeSchema = new mongoose.Schema(
   {
+    center: String,
+
     firstName: String,
     lastName: String,
     personalMobile: String,
