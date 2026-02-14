@@ -8,8 +8,10 @@ const RemoveEmployeeModal = ({ onClose }) => {
   const [selectedDepartment, setSelectedDepartment] = useState("");
   const [selectedEmployee, setSelectedEmployee] = useState("");
   const [customDepartment, setCustomDepartment] = useState("");
+  const [selectedCenter, setSelectedCenter] = useState("");
 
   const departments = ["MARKETING", "WAREHOUSE", "ACCOUNTS", "DRIVER", "OTHER"];
+  const centers = ["DELHI", "MUMBAI", "KOLKATA", "BANGALORE"];
 
   // ================= FETCH EMPLOYEES =================
   useEffect(() => {
@@ -34,7 +36,7 @@ const RemoveEmployeeModal = ({ onClose }) => {
   // ================= FILTER EMPLOYEES =================
   // ================= FILTER EMPLOYEES =================
   useEffect(() => {
-    if (!selectedDepartment || !Array.isArray(employees)) {
+    if (!selectedDepartment || !selectedCenter || !Array.isArray(employees)) {
       setFilteredEmployees([]);
       return;
     }
@@ -52,13 +54,16 @@ const RemoveEmployeeModal = ({ onClose }) => {
 
     const filtered = employees.filter(
       (emp) =>
+        emp.center &&
         emp.department &&
+        emp.center.toUpperCase().trim() ===
+          selectedCenter.toUpperCase().trim() &&
         emp.department.toUpperCase().trim() ===
           deptToFilter.toUpperCase().trim(),
     );
 
     setFilteredEmployees(filtered);
-  }, [selectedDepartment, customDepartment, employees]);
+  }, [selectedCenter, selectedDepartment, customDepartment, employees]);
 
   // ================= DELETE =================
   const handleDelete = async () => {
@@ -94,6 +99,25 @@ const RemoveEmployeeModal = ({ onClose }) => {
         <h2 className="text-xl font-semibold mb-6 text-red-600">
           Remove Employee
         </h2>
+
+        {/* Center */}
+        <select
+          value={selectedCenter}
+          onChange={(e) => {
+            setSelectedCenter(e.target.value);
+            setSelectedDepartment("");
+            setSelectedEmployee("");
+            setFilteredEmployees([]);
+          }}
+          className="w-full p-3 border rounded-lg mb-4"
+        >
+          <option value="">Select Center</option>
+          {centers.map((center) => (
+            <option key={center} value={center}>
+              {center}
+            </option>
+          ))}
+        </select>
 
         {/* Department */}
         <select
@@ -132,7 +156,7 @@ const RemoveEmployeeModal = ({ onClose }) => {
           <option value="">Select Employee</option>
           {filteredEmployees.map((emp) => (
             <option key={emp._id} value={emp._id}>
-              {emp.name}
+              {emp.firstName} {emp.lastName}
             </option>
           ))}
         </select>

@@ -11,47 +11,63 @@ const ExperienceLetterModal = ({ onClose }) => {
   const [selectedEmployee, setSelectedEmployee] = useState("");
   const [exitDate, setExitDate] = useState("");
   const [customDepartment, setCustomDepartment] = useState("");
+  const [centers, setCenters] = useState([]);
+  const [selectedCenter, setSelectedCenter] = useState("");
 
+  // Fetch all employees
   // Fetch all employees
   useEffect(() => {
     const fetchEmployees = async () => {
-      const res = await axios.get(
-        `${import.meta.env.VITE_API_BASE_URL}/employees`,
-      );
-      setEmployees(res.data);
+      try {
+        const res = await axios.get(
+          `${import.meta.env.VITE_API_BASE_URL}/employees`,
+        );
 
-      // extract unique departments
-      const uniqueDepartments = [
-        ...new Set(res.data.map((emp) => emp.department)),
-      ];
-      setDepartments(uniqueDepartments);
+        setEmployees(res.data);
+
+        // unique departments
+        const uniqueDepartments = [
+          ...new Set(res.data.map((emp) => emp.department)),
+        ];
+        setDepartments(uniqueDepartments);
+
+        // unique centers
+        const uniqueCenters = [...new Set(res.data.map((emp) => emp.center))];
+        setCenters(uniqueCenters);
+      } catch (err) {
+        console.error(err);
+      }
     };
 
-    fetchEmployees();
+    fetchEmployees(); // ✅ CALL OUTSIDE FUNCTION BODY
   }, []);
 
   // Filter employees by department
   useEffect(() => {
-    if (!selectedDepartment) {
+    if (!selectedDepartment || !selectedCenter) {
       setFilteredEmployees([]);
       return;
     }
 
-    let deptToFilter = selectedDepartment;
-
-    if (selectedDepartment === "OTHER") {
-      deptToFilter = customDepartment;
-    }
+    let deptToFilter =
+      selectedDepartment === "OTHER" ? customDepartment : selectedDepartment;
 
     if (!deptToFilter) {
       setFilteredEmployees([]);
       return;
     }
 
-    const filtered = employees.filter((emp) => emp.department === deptToFilter);
+    const filtered = employees.filter((emp) => {
+      return (
+        emp.center?.toUpperCase().trim() ===
+          selectedCenter.toUpperCase().trim() &&
+        emp.department?.toUpperCase().trim() ===
+          deptToFilter.toUpperCase().trim()
+      );
+    });
 
     setFilteredEmployees(filtered);
-  }, [selectedDepartment, customDepartment, employees]);
+  }, [selectedCenter, selectedDepartment, customDepartment, employees]);
 
   // Generate Experience Letter
   const generateExperienceLetter = async () => {
@@ -143,6 +159,25 @@ const ExperienceLetterModal = ({ onClose }) => {
           Generate Experience Letter
         </h2>
 
+        {/* Center */}
+        <select
+          value={selectedCenter}
+          onChange={(e) => {
+            setSelectedCenter(e.target.value);
+            setSelectedDepartment("");
+            setSelectedEmployee("");
+            setFilteredEmployees([]);
+          }}
+          className="w-full p-3 border rounded-lg mb-4"
+        >
+          <option value="">Select Center</option>
+          {centers.map((center) => (
+            <option key={center} value={center}>
+              {center}
+            </option>
+          ))}
+        </select>
+
         {/* Department */}
         {/* Department */}
         <select
@@ -150,14 +185,18 @@ const ExperienceLetterModal = ({ onClose }) => {
           onChange={(e) => {
             setSelectedDepartment(e.target.value);
             setCustomDepartment("");
+            setSelectedEmployee(""); // ✅ reset employee
           }}
           className="w-full p-3 border rounded-lg mb-4"
         >
           <option value="">Select Department</option>
-          <option value="MARKETING">MARKETING</option>
-          <option value="WAREHOUSE">WAREHOUSE</option>
-          <option value="ACCOUNTS">ACCOUNTS</option>
-          <option value="DRIVER">DRIVER</option>
+
+          {departments.map((dept) => (
+            <option key={dept} value={dept}>
+              {dept}
+            </option>
+          ))}
+
           <option value="OTHER">OTHER</option>
         </select>
 
