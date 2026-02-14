@@ -9,13 +9,27 @@ exports.moveEmployeeToPrevious = async (req, res) => {
       return res.status(404).json({ error: "Employee not found" });
     }
 
-    // Save to previous collection
+    const { doe } = req.body;
+
+    if (!doe) {
+      return res.status(400).json({ error: "DOE is required" });
+    }
+
+    // ✅ Convert mongoose document → plain object
+    const employeeData = employee.toObject();
+
+    // ✅ Remove Mongo internal fields (hidden bug fix)
+    delete employeeData._id;
+    delete employeeData.__v;
+
+    // ✅ Create previous employee safely
     await PreviousEmployee.create({
-      ...employee._doc,
+      ...employeeData,
+      doe: new Date(doe),
       movedAt: new Date(),
     });
 
-    // Remove from active collection
+    // ✅ Remove from active employees
     await Employee.findByIdAndDelete(req.params.id);
 
     res.json({ message: "Employee moved to previous employees" });

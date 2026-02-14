@@ -8,22 +8,19 @@ const MakeEmployeeInactiveModal = ({ onClose, onSuccess }) => {
   const [departments, setDepartments] = useState([]);
   const [filteredEmployees, setFilteredEmployees] = useState([]);
 
+  const [selectedCenter, setSelectedCenter] = useState("");
   const [selectedDepartment, setSelectedDepartment] = useState("");
   const [selectedEmployee, setSelectedEmployee] = useState("");
   const [exitDate, setExitDate] = useState("");
 
-  // Fetch active employees
+  const centers = ["DELHI", "MUMBAI", "KOLKATA", "BANGALORE"];
+
+  // ================= FETCH ACTIVE EMPLOYEES =================
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
         const res = await axios.get(`${API}/employees`);
         setEmployees(res.data);
-
-        const uniqueDepartments = [
-          ...new Set(res.data.map((emp) => emp.department)),
-        ];
-
-        setDepartments(uniqueDepartments);
         console.log("Employees:", res.data);
       } catch (err) {
         console.error(err);
@@ -33,20 +30,43 @@ const MakeEmployeeInactiveModal = ({ onClose, onSuccess }) => {
     fetchEmployees();
   }, []);
 
-  // Filter by department
+  // ================= FILTER DEPARTMENTS BY CENTER =================
   useEffect(() => {
-    if (!selectedDepartment) {
+    if (!selectedCenter) {
+      setDepartments([]);
+      setSelectedDepartment("");
+      return;
+    }
+
+    const uniqueDepartments = [
+      ...new Set(
+        employees
+          .filter((emp) => emp.center === selectedCenter)
+          .map((emp) => emp.department),
+      ),
+    ];
+
+    setDepartments(uniqueDepartments);
+    setSelectedDepartment("");
+    setSelectedEmployee("");
+  }, [selectedCenter, employees]);
+
+  // ================= FILTER EMPLOYEES =================
+  useEffect(() => {
+    if (!selectedDepartment || !selectedCenter) {
       setFilteredEmployees([]);
       return;
     }
 
     const filtered = employees.filter(
-      (emp) => emp.department === selectedDepartment,
+      (emp) =>
+        emp.department === selectedDepartment && emp.center === selectedCenter,
     );
 
     setFilteredEmployees(filtered);
-  }, [selectedDepartment, employees]);
+  }, [selectedDepartment, selectedCenter, employees]);
 
+  // ================= SUBMIT =================
   const handleSubmit = async () => {
     if (!selectedEmployee || !exitDate) {
       alert("Please select employee and exit date");
@@ -60,8 +80,8 @@ const MakeEmployeeInactiveModal = ({ onClose, onSuccess }) => {
 
       alert("Employee marked as Inactive successfully");
 
-      onSuccess(); // refresh page data
-      onClose(); // close modal
+      onSuccess();
+      onClose();
     } catch (err) {
       console.error(err);
       alert("Operation failed");
@@ -73,10 +93,25 @@ const MakeEmployeeInactiveModal = ({ onClose, onSuccess }) => {
       <div className="bg-white p-8 rounded-2xl w-[500px] shadow-xl">
         <h2 className="text-xl font-semibold mb-6">Make Employee Inactive</h2>
 
-        {/* Department */}
+        {/* ================= CENTER ================= */}
+        <select
+          value={selectedCenter}
+          onChange={(e) => setSelectedCenter(e.target.value)}
+          className="w-full p-3 border rounded-lg mb-4"
+        >
+          <option value="">Select Center</option>
+          {centers.map((center) => (
+            <option key={center} value={center}>
+              {center}
+            </option>
+          ))}
+        </select>
+
+        {/* ================= DEPARTMENT ================= */}
         <select
           value={selectedDepartment}
           onChange={(e) => setSelectedDepartment(e.target.value)}
+          disabled={!selectedCenter}
           className="w-full p-3 border rounded-lg mb-4"
         >
           <option value="">Select Department</option>
@@ -87,10 +122,11 @@ const MakeEmployeeInactiveModal = ({ onClose, onSuccess }) => {
           ))}
         </select>
 
-        {/* Employee */}
+        {/* ================= EMPLOYEE ================= */}
         <select
           value={selectedEmployee}
           onChange={(e) => setSelectedEmployee(e.target.value)}
+          disabled={!selectedDepartment}
           className="w-full p-3 border rounded-lg mb-4"
         >
           <option value="">Select Employee</option>
@@ -101,7 +137,7 @@ const MakeEmployeeInactiveModal = ({ onClose, onSuccess }) => {
           ))}
         </select>
 
-        {/* Exit Date */}
+        {/* ================= EXIT DATE ================= */}
         <input
           type="date"
           value={exitDate}
