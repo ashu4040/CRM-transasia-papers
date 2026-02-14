@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import AttendanceLogout from "../components/AttendanceLogoutModal";
 
 const API = import.meta.env.VITE_API_BASE_URL;
 
@@ -9,8 +10,9 @@ const EmployeeAttendance = () => {
   const [centers, setCenters] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [filteredEmployees, setFilteredEmployees] = useState([]);
-
   const [selectedCenter, setSelectedCenter] = useState("");
+  const [logoutRecord, setLogoutRecord] = useState(null);
+
   const [selectedDepartment, setSelectedDepartment] = useState("");
 
   const [formData, setFormData] = useState({
@@ -103,23 +105,8 @@ const EmployeeAttendance = () => {
       console.error(err);
     }
   };
-  const handleLogout = async (id) => {
-    try {
-      // get current time in HH:MM format
-      const now = new Date();
-      const logoutTime =
-        now.getHours().toString().padStart(2, "0") +
-        ":" +
-        now.getMinutes().toString().padStart(2, "0");
-
-      await axios.put(`${API}/attendance/${id}`, {
-        logoutTime,
-      });
-
-      fetchAttendance();
-    } catch (err) {
-      console.error(err);
-    }
+  const openLogoutModal = (record) => {
+    setLogoutRecord(record);
   };
 
   return (
@@ -128,7 +115,14 @@ const EmployeeAttendance = () => {
 
       <form
         onSubmit={handleSubmit}
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8"
+        className="
+grid
+grid-cols-1
+sm:grid-cols-2
+lg:grid-cols-4
+gap-4
+mb-8
+"
       >
         <select
           value={selectedCenter}
@@ -181,27 +175,39 @@ const EmployeeAttendance = () => {
           ))}
         </select>
 
-        <input
-          type="date"
-          name="date"
-          value={formData.date}
-          onChange={handleChange}
-          className="p-3 border rounded-lg"
-          required
-        />
+        <div className="flex flex-col">
+          <label className="md:hidden text-sm mb-1 text-gray-600">
+            Select Date
+          </label>
 
-        <input
-          type="time"
-          name="loginTime"
-          value={formData.loginTime}
-          onChange={handleChange}
-          className="p-3 border rounded-lg"
-          required
-        />
+          <input
+            type="date"
+            name="date"
+            value={formData.date}
+            onChange={handleChange}
+            className="p-3 border rounded-lg w-full"
+            required
+          />
+        </div>
+
+        <div className="flex flex-col">
+          <label className="md:hidden text-sm mb-1 text-gray-600">
+            Select Login Time
+          </label>
+
+          <input
+            type="time"
+            name="loginTime"
+            value={formData.loginTime}
+            onChange={handleChange}
+            className="p-3 border rounded-lg w-full"
+            required
+          />
+        </div>
 
         <button
           type="submit"
-          className="md:col-span-2 lg:col-span-4 bg-blue-600 text-white py-3 rounded-lg"
+          className="sm:col-span-2 lg:col-span-4 bg-blue-600 text-white py-3 rounded-lg w-full"
         >
           Save Attendance
         </button>
@@ -231,7 +237,7 @@ const EmployeeAttendance = () => {
                 <td className="p-3 border text-center space-x-2">
                   {!record.logoutTime && (
                     <button
-                      onClick={() => handleLogout(record._id)}
+                      onClick={() => openLogoutModal(record)}
                       className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
                     >
                       Logout
@@ -249,6 +255,13 @@ const EmployeeAttendance = () => {
             ))}
           </tbody>
         </table>
+        {logoutRecord && (
+          <AttendanceLogout
+            record={logoutRecord}
+            onClose={() => setLogoutRecord(null)}
+            onSuccess={fetchAttendance}
+          />
+        )}
       </div>
     </div>
   );

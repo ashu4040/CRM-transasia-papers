@@ -276,219 +276,246 @@ const EmployeeAdmission = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="bg-white p-8 rounded-2xl shadow max-w-6xl">
-      <h2 className="text-2xl font-bold mb-6">Employee Joining</h2>
+    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4">
+      <div className="bg-white p-4 sm:p-6 lg:p-8 rounded-2xl shadow-lg">
+        <div className="mb-8">
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">
+            Employee Joining
+          </h2>
+          <p className="text-gray-500 text-sm">
+            Add new employee details and generate joining documents.
+          </p>
+        </div>
 
-      <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-6">
-        <div>
-          <label className="block mb-1">
-            Select Company Center <span className="text-red-500">*</span>
-          </label>
+        <form
+          onSubmit={handleSubmit}
+          className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5"
+        >
+          <div>
+            <label className="block mb-1">
+              Select Company Center <span className="text-red-500">*</span>
+            </label>
+
+            <select
+              name="center"
+              value={formData.center}
+              onChange={handleChange}
+              className="p-3 border rounded-lg w-full"
+              required
+            >
+              <option value="">Select Center</option>
+              <option value="DELHI">DELHI</option>
+              <option value="MUMBAI">MUMBAI</option>
+              <option value="KOLKATA">KOLKATA</option>
+              <option value="BANGALORE">BANGALORE</option>
+            </select>
+          </div>
+
+          <Input
+            label="First Name"
+            name="firstName"
+            required
+            value={formData.firstName}
+            onChange={handleChange}
+          />
+          <Input
+            label="Last Name"
+            name="lastName"
+            required
+            value={formData.lastName}
+            onChange={handleChange}
+          />
+          <Input
+            label="Email"
+            name="email"
+            required
+            value={formData.email}
+            onChange={handleChange}
+          />
+          <Input
+            label="Personal Mobile"
+            name="personalMobile"
+            required
+            value={formData.personalMobile}
+            onChange={handleChange}
+          />
+          <Input
+            label="COCO (Company Mobile)"
+            name="coco"
+            value={formData.coco}
+            onChange={handleChange}
+          />
+          <Input
+            label="Date of Joining"
+            name="doj"
+            type="date"
+            required
+            value={formData.doj}
+            onChange={handleChange}
+          />
+
+          <SectionTitle title="Permanent Address" />
+
+          <AddressSection
+            address={formData.permanentAddress}
+            section="permanent"
+            handleChange={handleChange}
+            countries={countries}
+            states={states}
+            cities={cities}
+            fetchStates={fetchStates}
+            fetchCities={fetchCities}
+          />
+
+          <div className="md:col-span-2">
+            <label className="flex gap-2">
+              <input
+                type="checkbox"
+                checked={formData.sameAddress}
+                onChange={handleSameAddress}
+              />
+              Current address same as permanent
+            </label>
+          </div>
+
+          <SectionTitle title="Current Address" />
+
+          <AddressSection
+            address={formData.currentAddress}
+            section="current"
+            handleChange={handleChange}
+            countries={countries}
+            states={states}
+            cities={cities}
+            fetchStates={fetchStates}
+            fetchCities={fetchCities}
+          />
+
+          <SectionTitle title="Employment Details" />
 
           <select
-            name="center"
-            value={formData.center}
+            name="department"
+            value={formData.department}
             onChange={handleChange}
             className="p-3 border rounded-lg w-full"
             required
           >
-            <option value="">Select Center</option>
-            <option value="DELHI">DELHI</option>
-            <option value="MUMBAI">MUMBAI</option>
-            <option value="KOLKATA">KOLKATA</option>
-            <option value="BANGALORE">BANGALORE</option>
+            <option value="">SELECT DEPARTMENT *</option>
+            <option value="MARKETING">MARKETING</option>
+            <option value="WAREHOUSE">WAREHOUSE</option>
+            <option value="ACCOUNTS">ACCOUNTS</option>
+            <option value="DRIVER">DRIVER</option>
+            <option value="OTHER">OTHER</option>
           </select>
-        </div>
 
-        <Input
-          label="First Name"
-          name="firstName"
-          required
-          value={formData.firstName}
-          onChange={handleChange}
-        />
-        <Input
-          label="Last Name"
-          name="lastName"
-          required
-          value={formData.lastName}
-          onChange={handleChange}
-        />
-        <Input
-          label="Email"
-          name="email"
-          required
-          value={formData.email}
-          onChange={handleChange}
-        />
-        <Input
-          label="Personal Mobile"
-          name="personalMobile"
-          required
-          value={formData.personalMobile}
-          onChange={handleChange}
-        />
-        <Input
-          label="COCO (Company Mobile)"
-          name="coco"
-          value={formData.coco}
-          onChange={handleChange}
-        />
-        <Input
-          label="Date of Joining"
-          name="doj"
-          type="date"
-          required
-          value={formData.doj}
-          onChange={handleChange}
-        />
-
-        <SectionTitle title="Permanent Address" />
-
-        <AddressSection
-          address={formData.permanentAddress}
-          section="permanent"
-          handleChange={handleChange}
-          countries={countries}
-          states={states}
-          cities={cities}
-          fetchStates={fetchStates}
-          fetchCities={fetchCities}
-        />
-
-        <div className="col-span-2">
-          <label className="flex gap-2">
-            <input
-              type="checkbox"
-              checked={formData.sameAddress}
-              onChange={handleSameAddress}
+          {formData.department === "OTHER" && (
+            <Input
+              label="Enter New Department"
+              name="newDepartment"
+              required
+              value={formData.newDepartment}
+              onChange={handleChange}
             />
-            Current address same as permanent
-          </label>
-        </div>
+          )}
 
-        <SectionTitle title="Current Address" />
-
-        <AddressSection
-          address={formData.currentAddress}
-          section="current"
-          handleChange={handleChange}
-          countries={countries}
-          states={states}
-          cities={cities}
-          fetchStates={fetchStates}
-          fetchCities={fetchCities}
-        />
-
-        <SectionTitle title="Employment Details" />
-
-        <select
-          name="department"
-          value={formData.department}
-          onChange={handleChange}
-          className="p-3 border rounded-lg w-full"
-          required
-        >
-          <option value="">SELECT DEPARTMENT *</option>
-          <option value="MARKETING">MARKETING</option>
-          <option value="WAREHOUSE">WAREHOUSE</option>
-          <option value="ACCOUNTS">ACCOUNTS</option>
-          <option value="DRIVER">DRIVER</option>
-          <option value="OTHER">OTHER</option>
-        </select>
-
-        {formData.department === "OTHER" && (
           <Input
-            label="Enter New Department"
-            name="newDepartment"
+            label="Bank Name"
+            name="bankName"
             required
-            value={formData.newDepartment}
+            value={formData.bankDetails.bankName}
+            onChange={(e) => handleChange(e, "bank")}
+          />
+          <Input
+            label="Account Number"
+            name="accountNumber"
+            required
+            value={formData.bankDetails.accountNumber}
+            onChange={(e) => handleChange(e, "bank")}
+          />
+          <Input
+            label="IFSC (11 CHAR)"
+            name="ifsc"
+            required
+            value={formData.bankDetails.ifsc}
+            onChange={(e) => handleChange(e, "bank")}
+          />
+          <Input
+            label="Salary"
+            name="salary"
+            type="number"
+            required
+            value={formData.salary}
             onChange={handleChange}
           />
+          <Input
+            label="PAN Card"
+            name="panCard"
+            required
+            value={formData.panCard}
+            onChange={handleChange}
+          />
+
+          <button
+            className="
+    md:col-span-2
+    bg-gradient-to-r
+    from-blue-600
+    to-blue-700
+    hover:from-blue-700
+    hover:to-blue-800
+    text-white
+    py-3
+    rounded-xl
+    font-semibold
+    shadow-md
+    transition
+  "
+          >
+            Submit
+          </button>
+        </form>
+        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <button
+            type="button"
+            onClick={() => setShowExperience(true)}
+            className="w-full py-3 rounded-xl mt-4 font-medium shadow hover:scale-[1.01] transition"
+          >
+            Make Experience Letter
+          </button>
+        </div>
+        {showExperience && (
+          <ExperienceLetterModal onClose={() => setShowExperience(false)} />
         )}
 
-        <Input
-          label="Bank Name"
-          name="bankName"
-          required
-          value={formData.bankDetails.bankName}
-          onChange={(e) => handleChange(e, "bank")}
-        />
-        <Input
-          label="Account Number"
-          name="accountNumber"
-          required
-          value={formData.bankDetails.accountNumber}
-          onChange={(e) => handleChange(e, "bank")}
-        />
-        <Input
-          label="IFSC (11 CHAR)"
-          name="ifsc"
-          required
-          value={formData.bankDetails.ifsc}
-          onChange={(e) => handleChange(e, "bank")}
-        />
-        <Input
-          label="Salary"
-          name="salary"
-          type="number"
-          required
-          value={formData.salary}
-          onChange={handleChange}
-        />
-        <Input
-          label="PAN Card"
-          name="panCard"
-          required
-          value={formData.panCard}
-          onChange={handleChange}
-        />
-
-        <button className="col-span-2 bg-blue-600 text-white py-3 rounded-lg">
-          Submit
+        <button
+          type="button"
+          onClick={() => setShowRemove(true)}
+          className="w-full py-3 rounded-xl mt-4 font-medium shadow hover:scale-[1.01] transition"
+        >
+          Remove Employee
         </button>
-      </form>
 
-      <button
-        type="button"
-        onClick={() => setShowExperience(true)}
-        className="w-full bg-red-600 text-white py-3 rounded-lg mt-4"
-      >
-        Make Experience Letter
-      </button>
+        {showRemove && (
+          <RemoveEmployeeModal onClose={() => setShowRemove(false)} />
+        )}
 
-      {showExperience && (
-        <ExperienceLetterModal onClose={() => setShowExperience(false)} />
-      )}
+        <button
+          type="button"
+          onClick={() => navigate("/previous-employees")}
+          className="w-full py-3 rounded-xl mt-4 font-medium shadow hover:scale-[1.01] transition"
+        >
+          Inactive Employees
+        </button>
 
-      <button
-        type="button"
-        onClick={() => setShowRemove(true)}
-        className="w-full bg-red-700 text-white py-3 rounded-lg mt-4"
-      >
-        Remove Employee
-      </button>
-
-      {showRemove && (
-        <RemoveEmployeeModal onClose={() => setShowRemove(false)} />
-      )}
-
-      <button
-        type="button"
-        onClick={() => navigate("/previous-employees")}
-        className="w-full bg-gray-800 text-white py-3 rounded-lg mt-4"
-      >
-        Inactive Employees
-      </button>
-
-      {/* Active Employees Button */}
-      <button
-        type="button"
-        onClick={() => navigate("/active-employees")}
-        className="w-full bg-green-600 text-white py-3 rounded-lg mt-4"
-      >
-        Active Employees
-      </button>
+        {/* Active Employees Button */}
+        <button
+          type="button"
+          onClick={() => navigate("/active-employees")}
+          className="w-full py-3 rounded-xl mt-4 font-medium shadow hover:scale-[1.01] transition"
+        >
+          Active Employees
+        </button>
+      </div>
     </div>
   );
 };
@@ -500,12 +527,29 @@ const Input = ({ label, required, ...props }) => (
     <label className="block mb-1">
       {label} {required && <span className="text-red-500">*</span>}
     </label>
-    <input {...props} className="p-3 border rounded-lg w-full" />
+    <input
+      {...props}
+      className="
+    w-full
+    p-3
+    border
+    rounded-lg
+    outline-none
+    focus:ring-2
+    focus:ring-blue-500
+    focus:border-blue-500
+    transition
+  "
+    />
   </div>
 );
 
 const SectionTitle = ({ title }) => (
-  <div className="col-span-2 font-semibold text-lg mt-6">{title}</div>
+  <div className="md:col-span-2 xl:col-span-3 mt-10 mb-3">
+    <h3 className="text-lg font-semibold text-gray-700 border-b pb-2">
+      {title}
+    </h3>
+  </div>
 );
 
 const AddressSection = ({
@@ -518,7 +562,7 @@ const AddressSection = ({
   fetchStates,
   fetchCities,
 }) => (
-  <>
+  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:col-span-2">
     {/* COUNTRY */}
     <div>
       <label className="block mb-1">Country *</label>
@@ -602,5 +646,5 @@ const AddressSection = ({
       value={address.line2}
       onChange={(e) => handleChange(e, section)}
     />
-  </>
+  </div>
 );
